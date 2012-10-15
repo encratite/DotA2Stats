@@ -24,13 +24,13 @@ def quantile(input, quantile)
   return input[index]
 end
 
-def analyse(databasePath)
-  cutoff = 100
+def analyse(databasePath, cutoff)
   players = Nil.deserialise(databasePath)
   sumGames = 0
   gameCounts = []
   differences = []
   playersUsed = 0
+  differenceCounts = {}
   players.each do |player|
     games = player.wins + player.losses
     if games < cutoff
@@ -38,6 +38,11 @@ def analyse(databasePath)
     end
     sumGames += games
     difference = player.wins - player.losses
+    if differenceCounts[difference] == nil
+      differenceCounts[difference] = 1
+    else
+      differenceCounts[difference] += 1
+    end
     gameCounts << games
     differences << difference
     playersUsed += 1
@@ -58,33 +63,23 @@ def analyse(databasePath)
     puts "#{currentQuantile}%: #{value}"
     currentQuantile += quantileStep
   end
-
-  graphCutoffs = [10, 50, 100]
-  graphs = []
-  graphCutoffs.each do |cutoff|
-    graphs[cutoff] = {}
+  csv = differenceCounts.map do |difference, count|
+    [difference, count]
   end
-  players.each do |player|
-    graphs.each do |cutoff, data|
-      if player.games < cutoff
-        next
-      end
-      if data[difference] == nil
-        data[difference] = 0
-      end
-      data[difference] += 1
-    end
+  csv.sort! do |x, y|
+    x[0] <=> y[0]
   end
-  allData = {}
-  graphs.each do |cutoff, data|
-    data.each do |difference, count|
-      if allData[difference] == nil
-        allData[difference] = []
-      end
-    end
+  csv.map! do |difference, count|
+    "#{difference},#{count.to_f / differences.size}"
   end
+  #csv = ['MMR,Count'] + csv
   csv = csv.join("\n")
-  Nil.writeFile("winLossDifference.csv", csv)
+  Nil.writeFile("winLossDifference-#{cutoff}.csv", csv)
 end
 
-analyse('players.db')
+cutoff = 100
+if ARGV.size >= 1
+  cutoff = ARGV[0].to_i
+end
+
+analyse('players.db', cutoff)

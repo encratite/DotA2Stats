@@ -1,4 +1,6 @@
 matches
 players
 data
+csv
 *.db
+*.csv
