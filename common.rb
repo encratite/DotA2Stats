@@ -7,5 +7,5 @@ def percentageString(input)
 end
 
 def percentage(numerator, denominator)
-  return percentage(numerator.to_f / denominator)
+  return percentageString(numerator.to_f / denominator)
 end
