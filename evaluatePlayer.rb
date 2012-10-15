@@ -1,3 +1,5 @@
+require 'set'
+
 require 'nil/serialise'
 
 require_relative 'DotaBuff'
@@ -6,12 +8,13 @@ require_relative 'Player'
 require_relative 'common'
 
 class PlayerEvaluator
-  def initialize(databasePath)
+  def initialize(accuracy, databasePath)
     @server = DotaBuff.new
-    @accuracy = 3
+    @accuracy = accuracy
     @minimumWeight = 0.2
     @maximumWeight = 1.0
     @minimumGameCount = 100
+    @modifyOwnWeight = false
     @ownWeight = 1.0 * @accuracy
 
     loadDatabase(databasePath)
@@ -74,14 +77,21 @@ class PlayerEvaluator
     pattern = /<a href="(\/matches\/\d+)" class="hero-link">/
     paths = []
     players = {}
+    collisions = Set.new
     accuracyCounter = 0
     matchOverviewData.scan(pattern) do |match|
       matchPath = match[0]
       matchData = @server.download(matchPath)
-      pattern = /<a href="\/players\/(\d+)">/
+      pattern = /<a href="\/players\/(\d+)"><img/
       matchData.scan(pattern) do |match|
         playerId = match[0].to_i
-        if players.include?(playerId) || id == playerId
+        if id == playerId
+          next
+        end
+        if players.include?(playerId)
+          if !collisions.include?(playerId)
+            collisions.add(playerId)
+          end
           next
         end
         players[playerId] = getStats(playerId)
@@ -91,6 +101,9 @@ class PlayerEvaluator
         break
       end
     end
+    if !@modifyOwnWeight
+      players[id] = thisPlayer
+    end
     weightedDifferences = players.map do |id, player|
       if player.games >= @minimumGameCount
         weight = @maximumWeight
@@ -99,7 +112,9 @@ class PlayerEvaluator
       end
       [weight, player.difference]
     end
-    weightedDifferences << [@ownWeight, thisPlayer.difference]
+    if @modifyOwnWeight
+      weightedDifferences << [@ownWeight, thisPlayer.difference]
+    end
     totalWeight = 0
     weightedDifferences.each do |weight, difference|
       totalWeight += weight
@@ -109,16 +124,23 @@ class PlayerEvaluator
       weightedDifference += weight.to_f / totalWeight * difference
     end
     percentile = getPercentile(weightedDifference)
+    if !collisions.empty?
+      puts "Collisions: #{collisions.size}"
+    end
     puts "Percentile: #{percentageString(percentile)}"
   end
 end
 
-if ARGV.size != 1
+if ARGV.size < 1
   puts 'Usage:'
   puts '<DotaBuff player ID>'
 end
 
 id = ARGV[0].to_i
+accuracy = 1
+if ARGV.size > 1
+  accuracy = ARGV[1].to_i
+end
 
-evaluator = PlayerEvaluator.new('players.db')
+evaluator = PlayerEvaluator.new(accuracy, 'players.db')
 evaluator.evaluate(id)

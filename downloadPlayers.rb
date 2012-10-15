@@ -27,4 +27,6 @@ class PlayerDownloader
 end
 
 downloader = PlayerDownloader.new
-downloader.downloadPlayers
+while true
+  downloader.downloadPlayers
+end
