@@ -1,14 +1,7 @@
 require 'nil/serialise'
 
 require_relative 'Player'
-
-def floatString(input)
-  return sprintf('%.1f', input)
-end
-
-def percentage(numerator, denominator)
-  return floatString(numerator.to_f / denominator * 100.0) + '%'
-end
+require_relative 'common'
 
 def properMedian(input)
   if input.size == 1
