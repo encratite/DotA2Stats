@@ -25,7 +25,7 @@ def quantile(input, quantile)
 end
 
 def analyse(databasePath)
-  cutOff = 100
+  cutoff = 100
   players = Nil.deserialise(databasePath)
   sumGames = 0
   gameCounts = []
@@ -33,7 +33,7 @@ def analyse(databasePath)
   playersUsed = 0
   players.each do |player|
     games = player.wins + player.losses
-    if games < cutOff
+    if games < cutoff
       next
     end
     sumGames += games
@@ -42,7 +42,7 @@ def analyse(databasePath)
     differences << difference
     playersUsed += 1
   end
-  puts "Minimum number of games required: #{cutOff}"
+  puts "Minimum number of games required: #{cutoff}"
   puts "Players with the required number of games: #{percentage(playersUsed, players.size)}"
   gameCounts.sort!
   meanGames = sumGames.to_f / players.size
@@ -58,6 +58,33 @@ def analyse(databasePath)
     puts "#{currentQuantile}%: #{value}"
     currentQuantile += quantileStep
   end
+
+  graphCutoffs = [10, 50, 100]
+  graphs = []
+  graphCutoffs.each do |cutoff|
+    graphs[cutoff] = {}
+  end
+  players.each do |player|
+    graphs.each do |cutoff, data|
+      if player.games < cutoff
+        next
+      end
+      if data[difference] == nil
+        data[difference] = 0
+      end
+      data[difference] += 1
+    end
+  end
+  allData = {}
+  graphs.each do |cutoff, data|
+    data.each do |difference, count|
+      if allData[difference] == nil
+        allData[difference] = []
+      end
+    end
+  end
+  csv = csv.join("\n")
+  Nil.writeFile("winLossDifference.csv", csv)
 end
 
 analyse('players.db')
