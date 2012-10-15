@@ -12,6 +12,7 @@ class PlayerEvaluator
     @minimumWeight = 0.2
     @maximumWeight = 1.0
     @minimumGameCount = 100
+    @ownWeight = 1.0 * @accuracy
 
     loadDatabase(databasePath)
   end
@@ -68,11 +69,11 @@ class PlayerEvaluator
   end
 
   def evaluate(id)
-    player = getStats(id)
+    thisPlayer = getStats(id)
     matchOverviewData = @server.download("/players/#{id}/matches")
     pattern = /<a href="(\/matches\/\d+)" class="hero-link">/
     paths = []
-    players = {id => player}
+    players = {}
     accuracyCounter = 0
     matchOverviewData.scan(pattern) do |match|
       matchPath = match[0]
@@ -80,7 +81,7 @@ class PlayerEvaluator
       pattern = /<a href="\/players\/(\d+)">/
       matchData.scan(pattern) do |match|
         playerId = match[0].to_i
-        if players.include?(playerId)
+        if players.include?(playerId) || id == playerId
           next
         end
         players[playerId] = getStats(playerId)
@@ -98,6 +99,7 @@ class PlayerEvaluator
       end
       [weight, player.difference]
     end
+    weightedDifferences << [@ownWeight, thisPlayer.difference]
     totalWeight = 0
     weightedDifferences.each do |weight, difference|
       totalWeight += weight
