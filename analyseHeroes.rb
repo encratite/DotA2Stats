@@ -18,17 +18,14 @@ files.each do |file|
   roles = [
     'Carry',
     'Disabler',
+    'Durable',
     'Escape',
-    'Ganker',
     'Initiator',
-    'Nuker',
     'Jungler',
     'Lane Support',
+    'Nuker',
     'Pusher',
-    'Roamer',
-    'Semi-Carry',
     'Support',
-    'Tank',
   ]
   flags = []
   roles.each do |role|
@@ -38,6 +35,6 @@ files.each do |file|
     end
   end
   flagString = flags.join(', ')
-  output += "new Hero(\"#{hero}\", HeroAttribute.#{attribute}, #{flagString}),\n"
+  output += "\t\t\tnew Hero(\"#{hero}\", HeroAttribute.#{attribute}, #{flagString}),\n"
 end
 Nil.writeFile('data/heroes', output)
