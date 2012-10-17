@@ -2,5 +2,6 @@ matches
 players
 data
 csv
+heroes
 *.db
 *.csv

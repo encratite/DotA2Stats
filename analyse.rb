@@ -63,18 +63,18 @@ def analyse(databasePath, cutoff)
     puts "#{currentQuantile}%: #{value}"
     currentQuantile += quantileStep
   end
-  csv = differenceCounts.map do |difference, count|
+  output = differenceCounts.map do |difference, count|
     [difference, count]
   end
-  csv.sort! do |x, y|
+  output.sort! do |x, y|
     x[0] <=> y[0]
   end
-  csv.map! do |difference, count|
-    "#{difference},#{count.to_f / differences.size}"
+  output.map! do |difference, count|
+    "#{difference} #{"%1.12f" % (count.to_f / differences.size)}"
   end
-  #csv = ['MMR,Count'] + csv
-  csv = csv.join("\n")
-  Nil.writeFile("winLossDifference-#{cutoff}.csv", csv)
+  #output = ['MMR,Count'] + output
+  output = output.join("\n")
+  Nil.writeFile("data/winLossDifference-#{cutoff}.dat", output)
 end
 
 cutoff = 100
