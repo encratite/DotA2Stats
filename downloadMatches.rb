@@ -8,6 +8,7 @@ class MatchDownloader
   end
 
   def processMatchPage(pageData)
+    foundOne = false
     pattern = /<a href="(\/matches\/\d+)">(\d+)<\/a>/
     pageData.scan(pattern) do |match|
       httpPath = match[0]
@@ -18,14 +19,19 @@ class MatchDownloader
       end
       matchData = @server.download(httpPath)
       Nil.writeFile(filePath, matchData)
+      foundOne = true
     end
+    return foundOne
   end
 
   def downloadMatches(firstPage = 1, lastPage = 20)
     page = firstPage
     while page <= lastPage
       pageData = @server.download("/matches?page=#{page}")
-      processMatchPage(pageData)
+      foundOne = processMatchPage(pageData)
+      if !foundOne
+        return
+      end
       page += 1
     end
   end
@@ -33,6 +39,8 @@ end
 
 downloader = MatchDownloader.new
 while true
+  puts 'Running'
   downloader.downloadMatches
+  puts 'Waiting'
   sleep(60)
 end
