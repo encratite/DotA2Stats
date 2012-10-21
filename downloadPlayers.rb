@@ -17,6 +17,7 @@ class PlayerDownloader
         httpPath = "/players/#{id}"
         filePath = "players/#{id}"
         if File.exists?(filePath)
+          #puts "Skipping #{filePath}"
           next
         end
         playerData = @server.download(httpPath)
@@ -27,6 +28,6 @@ class PlayerDownloader
 end
 
 downloader = PlayerDownloader.new
-while true
-  downloader.downloadPlayers
-end
+puts 'Checking for new players'
+downloader.downloadPlayers
+puts 'Done'
