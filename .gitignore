@@ -3,5 +3,6 @@ players
 data
 csv
 heroes
+playerHeroes
 *.db
 *.csv
