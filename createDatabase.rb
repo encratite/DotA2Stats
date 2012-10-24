@@ -30,4 +30,4 @@ def createDatabase(databasePath)
   puts output.size
 end
 
-createDatabase('players.db')
+createDatabase('playersIncomplete.db')
