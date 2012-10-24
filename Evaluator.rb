@@ -66,7 +66,7 @@ class Evaluator
     end
     wins = match[1].to_i
     losses = match[2].to_i
-    player = Player.new(wins, losses)
+    player = Player.new(id, wins, losses)
     return player
   end
 

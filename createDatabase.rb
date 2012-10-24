@@ -5,13 +5,15 @@ require_relative 'Player'
 
 def createDatabase(databasePath)
   output = []
-  puts 'Reading...'
+  puts 'Reading directory'
   files = Nil.readDirectory('players')
+  puts 'Processing markup'
   index = 1
   files.each do |file|
     data = Nil.readFile(file.path)
+    id = file.name.to_i
     if index % 100 == 0
-      puts "#{index}/#{files.size} #{file.path}"
+      puts "#{index}/#{files.size} #{id}"
     end
     pattern = /<span class="won">(\d+)<\/span> - <span class="lost">(\d+)<\/span>/
     match = data.match(pattern)
@@ -20,7 +22,7 @@ def createDatabase(databasePath)
     end
     wins = match[1].to_i
     losses = match[2].to_i
-    player = Player.new(wins, losses)
+    player = Player.new(id, wins, losses)
     output << player
     index += 1
   end

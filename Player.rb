@@ -1,7 +1,8 @@
 class Player
-  attr_reader :wins, :losses
+  attr_reader :id, :wins, :losses
 
-  def initialize(wins, losses)
+  def initialize(id, wins, losses)
+    @id = id
     @wins = wins
     @losses = losses
   end
