@@ -40,7 +40,7 @@ class DatabaseCreator
     files.each do |file|
       id = file.name.to_i
       if counter % 1000 == 0
-        puts "Processing #{file.path}"
+        #puts "Processing #{file.path}"
       end
       data = Nil.readFile(file.path)
       processHeroData(id, data)

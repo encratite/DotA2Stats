@@ -4,9 +4,9 @@ require 'nil/serialise'
 
 require_relative 'DotaBuff'
 require_relative 'Player'
+require_relative 'HeroStatistics'
 
 require_relative 'common'
-
 
 class Evaluator
   def initialize(databasePath = 'players.db')
